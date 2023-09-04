@@ -10,7 +10,7 @@ import entity.Usuario;
 import repository.UsuarioRepository;
 
 @Service
-public class UsuarioService {
+public class UsuarioService implements IUsuarioService {
     
     @Autowired
     private UsuarioRepository usuarioRepo;
