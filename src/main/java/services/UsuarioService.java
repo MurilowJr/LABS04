@@ -1,60 +1,81 @@
 package services;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import entity.Anotacao;
 import entity.Autorizacao;
 import entity.Usuario;
-import jakarta.transaction.Transactional;
+import repository.AnotacaoRepository;
 import repository.AutorizacaoRepository;
 import repository.UsuarioRepository;
 
 @Service
-public class UsuarioService implements IUsuarioService {
+public class UsuarioService implements IUsuarioService{
     
     @Autowired
     private UsuarioRepository usuarioRepo;
 
     @Autowired
-    private AutorizacaoRepository autRepo;
+    private AutorizacaoRepository autorizacaoRepo;
+
+    @Autowired
+    private AnotacaoRepository anotacaoRepo;
 
     @Transactional
-    public Usuario novoUsuarioAutorizacao(String nome, String senha, String nomeAutorizacao) {
-        Usuario usuario = new Usuario(nome, senha);
-        Optional<Autorizacao> autOp = autRepo.findByNome(nomeAutorizacao);
-        Autorizacao autorizacao;
-        if(autOp.isEmpty()){
-            autorizacao = new Autorizacao();
-            autorizacao.setNome(nomeAutorizacao);
-            autRepo.save(autorizacao);
-        } else {
-            autorizacao = autOp.get();
+    public Usuario novoUsuario(Usuario usuario) {
+        if(usuario == null ||
+                usuario.getNome() == null ||
+                usuario.getNome().isBlank() || 
+                usuario.getSenha() == null ||
+                usuario.getSenha().isBlank()) {
+            throw new IllegalArgumentException("Usuário com atributos inválidos!");
         }
-        usuario.setAutorizacoes(new ArrayList<Autorizacao>());
-        usuario.getAutorizacoes().add(autorizacao);
-        return usuarioRepo.save(usuario);
+        if(!usuario.getAutorizacoes().isEmpty()) {
+            Set<Autorizacao> autorizacoes = new HashSet<Autorizacao>();
+            for(Autorizacao autorizacao: usuario.getAutorizacoes()) {
+                Autorizacao autorizacaoBd = buscarAutorizacaoPorId(autorizacao.getId());
+                autorizacoes.add(autorizacaoBd);
+            }
+            usuario.setAutorizacoes(autorizacoes);
+        }
+        Set<Anotacao> anotacoes = usuario.getAnotacoes();
+        usuario.setAnotacoes(new HashSet<Anotacao>());
+        usuario = usuarioRepo.save(usuario);
+        for(Anotacao anotacao: anotacoes) {
+            anotacao.setUsuario(usuario);
+            anotacao = anotacaoRepo.save(anotacao);
+            usuario.getAnotacoes().add(anotacao);
+        }
+        
+        return usuario;
     }
 
-    public Usuario buscarPorId(Long id){
-        Optional<Usuario> usuarioOp = usuarioRepo.findById(id);
-        if(usuarioOp.isPresent()){
-            return usuarioOp.get();
-        }
-        throw new IllegalArgumentException("Id inválido!");
-    }
-
-    public Usuario novoUsuario(Usuario usuario){
-        if(usuario == null || usuario.getNome() == null || usuario.getSenha() == null) {
-            throw new IllegalArgumentException("Nome e senha inválidos!");
-        }
-        return usuarioRepo.save(usuario);
-    }
-
-    public List<Usuario> buscarTodos(){
+    public List<Usuario> buscarTodos() {
         return usuarioRepo.findAll();
     }
+
+    public Usuario buscarPorId(Long id) {
+        Optional<Usuario> usuarioOp = usuarioRepo.findById(id);
+        if(usuarioOp.isEmpty()) {
+            throw new IllegalArgumentException("Usuario nao encontrado!");
+        }
+        return usuarioOp.get();
+    }
+
+    public Autorizacao buscarAutorizacaoPorId(Long id) {
+        Optional<Autorizacao> autorizacaoOp = autorizacaoRepo.findById(id);
+        if(autorizacaoOp.isEmpty()) {
+            throw new IllegalArgumentException("Autorizacao nao encontrada!");
+        }
+        return autorizacaoOp.get();
+    }
+
+
 }

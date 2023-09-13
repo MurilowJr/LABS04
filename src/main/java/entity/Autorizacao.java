@@ -1,11 +1,13 @@
 package entity;
 
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,9 +26,9 @@ public class Autorizacao {
     @Column(name = "aut_nome")
     private String nome;
 
-    @ManyToMany(mappedBy = "autorizacoes")
+    @ManyToMany(mappedBy = "autorizacoes", fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<Usuario> usuarios;
+    private Set<Usuario> usuarios;
 
     public Autorizacao(){}
 
@@ -56,12 +58,12 @@ public void setNome(String nome) {
 }
 
 
-public List<Usuario> getUsuarios() {
+public Set<Usuario> getUsuarios() {
     return usuarios;
 }
 
 
-public void setUsuarios(List<Usuario> usuarios) {
+public void setUsuarios(Set<Usuario> usuarios) {
     this.usuarios = usuarios;
 }
     

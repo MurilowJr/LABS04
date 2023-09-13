@@ -27,8 +27,8 @@ public class UsuarioController {
         return service.buscarTodos();
     }
 
-    @GetMapping(value = "/{usuario}")
-    public Usuario buscarPorId(@PathVariable("usuario") Long id) {
+    @GetMapping(value = "/{id}")
+    public Usuario buscarPorId(@PathVariable("id") Long id) {
         return service.buscarPorId(id);
     }
 

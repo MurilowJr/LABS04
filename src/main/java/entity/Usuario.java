@@ -1,6 +1,7 @@
 package entity;
 
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -32,15 +33,15 @@ public class Usuario {
     @JsonIgnore
     private String senha;
 
-    @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "usuario")
     @JsonIgnore
-    private List<Anotacao> anotacoes;
+    private Set<Anotacao> anotacoes;
 
     @ManyToMany
     @JoinTable(name = "uau_usuario_autorizacao",
         joinColumns = {@JoinColumn(name = "usr_id")},
         inverseJoinColumns = {@JoinColumn(name = "aut_id")})
-    private List<Autorizacao> autorizacoes;
+    private Set<Autorizacao> autorizacoes;
 
     public Usuario(){}
 
@@ -73,19 +74,19 @@ public class Usuario {
         this.senha = senha;
     }
 
-    public List<Anotacao> getAnotacoes() {
+    public Set<Anotacao> getAnotacoes() {
         return anotacoes;
     }
 
-    public void setAnotacoes(List<Anotacao> anotacoes) {
+    public void setAnotacoes(Set<Anotacao> anotacoes) {
         this.anotacoes = anotacoes;
     }
 
-    public List<Autorizacao> getAutorizacoes() {
+    public Set<Autorizacao> getAutorizacoes() {
         return autorizacoes;
     }
 
-    public void setAutorizacoes(List<Autorizacao> autorizacoes) {
+    public void setAutorizacoes(Set<Autorizacao> autorizacoes) {
         this.autorizacoes = autorizacoes;
     }
     
